@@ -346,6 +346,8 @@
 		E232F8C62665173C0038CAF3 /* MapboxDirections.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DA1A10AF1D00F8FF009F82FA /* MapboxDirections.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E232F8C9266518480038CAF3 /* Polyline.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E232F899266513C20038CAF3 /* Polyline.xcframework */; };
 		E28E325826662B1E0030807F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E28E325726662B1E0030807F /* ContentView.swift */; };
+		E2E7F0F926A998BE0050CC75 /* WaypointsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E7F0F826A998BE0050CC75 /* WaypointsEditor.swift */; };
+		E2E7F0FB26A9ADE40050CC75 /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E7F0FA26A9ADE40050CC75 /* RoutesView.swift */; };
 		F457FA7A252B9E29007DAEB1 /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457FA79252B9E29007DAEB1 /* Incident.swift */; };
 		F457FA7B252B9E29007DAEB1 /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457FA79252B9E29007DAEB1 /* Incident.swift */; };
 		F457FA7C252B9E29007DAEB1 /* Incident.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457FA79252B9E29007DAEB1 /* Incident.swift */; };
@@ -562,6 +564,8 @@
 		E232F8BA266516D70038CAF3 /* OHHTTPStubs.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OHHTTPStubs.xcframework; path = Carthage/Build/OHHTTPStubs.xcframework; sourceTree = "<group>"; };
 		E232F8BF266517010038CAF3 /* SwiftCLI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SwiftCLI.xcframework; path = Carthage/Build/SwiftCLI.xcframework; sourceTree = "<group>"; };
 		E28E325726662B1E0030807F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E2E7F0F826A998BE0050CC75 /* WaypointsEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaypointsEditor.swift; sourceTree = "<group>"; };
+		E2E7F0FA26A9ADE40050CC75 /* RoutesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutesView.swift; sourceTree = "<group>"; };
 		F457FA79252B9E29007DAEB1 /* Incident.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Incident.swift; sourceTree = "<group>"; };
 		F4CF2C562523B66300A6D0B6 /* TollCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TollCollection.swift; sourceTree = "<group>"; };
 		F4D785EE1DDD82C100FF4665 /* RouteStepTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteStepTests.swift; sourceTree = "<group>"; };
@@ -884,6 +888,8 @@
 			children = (
 				DADD27B71E5AAAD800D31FAD /* AppDelegate.swift */,
 				E28E325726662B1E0030807F /* ContentView.swift */,
+				E2E7F0F826A998BE0050CC75 /* WaypointsEditor.swift */,
+				E2E7F0FA26A9ADE40050CC75 /* RoutesView.swift */,
 				DADD27CB1E5AAF5600D31FAD /* Supporting Files */,
 			);
 			path = "Directions Example";
@@ -1680,7 +1686,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2E7F0FB26A9ADE40050CC75 /* RoutesView.swift in Sources */,
 				DADD27B81E5AAAD800D31FAD /* AppDelegate.swift in Sources */,
+				E2E7F0F926A998BE0050CC75 /* WaypointsEditor.swift in Sources */,
 				E28E325826662B1E0030807F /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2162,7 +2170,7 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Directions Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -2184,7 +2192,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GJZR2MEM28;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "Directions Example/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;

@@ -4,7 +4,9 @@ import SwiftUI
 struct TestApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(vm: DirectionsViewModel())
+            NavigationView {
+                ContentView(vm: DirectionsViewModel())
+            }
         }
     }
 }
