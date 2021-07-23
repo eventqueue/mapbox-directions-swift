@@ -3,14 +3,18 @@ import SwiftUI
 import CoreLocation
 import MapboxDirections
 
-struct Waypoint: Identifiable, Hashable {
-    let id: UUID = UUID()
+struct Waypoint: Identifiable, Hashable, Codable {
+    let id: UUID
     var latitude: CLLocationDegrees = 0
     var longitude: CLLocationDegrees = 0
     var name: String = ""
 
     var native: MapboxDirections.Waypoint {
         .init(coordinate: .init(latitude: latitude, longitude: longitude), name: name)
+    }
+
+    static func make() -> Waypoint {
+        .init(id: .init())
     }
 }
 
@@ -20,15 +24,9 @@ struct WaypointsEditor: View {
 
     var body: some View {
         List {
-            ForEach(waypoints) { waypoint in
+            ForEach($waypoints) { $waypoint in
                 HStack {
-                    WaypointView(waypoint: .init(get: {
-                        self.waypoints.first(where: { $0.id == waypoint.id })!
-                    }, set: { newValue in
-                        self.waypoints.firstIndex(of: waypoint).map {
-                            waypoints[$0] = newValue
-                        }
-                    }))
+                    WaypointView(waypoint: $waypoint)
 
                     Menu {
                         Button("Insert Above") {
@@ -52,7 +50,7 @@ struct WaypointsEditor: View {
         }
         .listStyle(InsetGroupedListStyle())
         .toolbar {
-            ToolbarItem(placement: ToolbarItemPlacement.navigationBarLeading) {
+            ToolbarItem(placement: ToolbarItemPlacement.automatic) {
                 EditButton()
             }
         }
@@ -63,13 +61,13 @@ struct WaypointsEditor: View {
             preconditionFailure("Waypoint is in the array of waypoints")
         }
         let insertionIndex = waypoints.index(after: waypointIndex)
-        waypoints.insert(Waypoint(), at: insertionIndex)
+        waypoints.insert(Waypoint.make(), at: insertionIndex)
     }
     private func addNewWaypoint(before waypoint: Waypoint) {
         guard let insertionIndex = waypoints.firstIndex(of: waypoint) else {
             preconditionFailure("Waypoint is in the array of waypoints")
         }
-        waypoints.insert(Waypoint(), at: insertionIndex)
+        waypoints.insert(Waypoint.make(), at: insertionIndex)
     }
 }
 

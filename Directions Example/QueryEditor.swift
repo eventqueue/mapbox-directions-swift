@@ -11,8 +11,8 @@ final class DirectionsViewModel: ObservableObject {
 
     }
 
-    func loadRoutes(for waypoints: [Waypoint]) {
-        let options = RouteOptions(waypoints: waypoints.map(\.native))
+    func loadRoutes(for query: Query) {
+        let options = RouteOptions(waypoints: query.waypoints.map(\.native))
         print("Calculating route for \(options.waypoints)")
         options.includesSteps = true
         options.routeShapeResolution = .full
@@ -29,19 +29,16 @@ final class DirectionsViewModel: ObservableObject {
     }
 }
 
-struct ContentView: View {
+struct QueryEditor: View {
     @ObservedObject
-    var vm: DirectionsViewModel
+    private var vm: DirectionsViewModel = .init()
 
-    @State
-    private var waypoints: [Waypoint] = .defaultWaypoints
-
-    @State
-    private var showRoutes: Bool = false
+    @Binding
+    var query: Query
 
     var body: some View {
         VStack {
-            WaypointsEditor(waypoints: $waypoints)
+            WaypointsEditor(waypoints: $query.waypoints)
                 .background(NavigationLink(
                                 destination: RoutesView(routes: vm.routes),
                                 isActive: .init(get: {
@@ -56,8 +53,10 @@ struct ContentView: View {
                                 })
                 )
                 .toolbar(content: {
-                    Button("Calculate") {
-                        vm.loadRoutes(for: waypoints)
+                    ToolbarItem(placement: ToolbarItemPlacement.navigationBarTrailing) {
+                        Button("Calculate") {
+                            vm.loadRoutes(for: query)
+                        }
                     }
                 })
                 .navigationTitle("Edit Route Waypoints")
@@ -65,12 +64,12 @@ struct ContentView: View {
     }
 }
 
-private extension Array where Element == Waypoint {
+extension Array where Element == Waypoint {
     static var defaultWaypoints: Self {
         [
-            .init(latitude: 38.9131752, longitude: -77.0324047, name: "Mapbox"),
-            .init(latitude: 38.8906572, longitude: -77.0090701, name: "Capitol"),
-            .init(latitude: 38.8977000, longitude: -77.0365000, name: "White House"),
+            .init(id: .init(), latitude: 38.9131752, longitude: -77.0324047, name: "Mapbox"),
+            .init(id: .init(), latitude: 38.8906572, longitude: -77.0090701, name: "Capitol"),
+            .init(id: .init(), latitude: 38.8977000, longitude: -77.0365000, name: "White House"),
         ]
     }
 }
