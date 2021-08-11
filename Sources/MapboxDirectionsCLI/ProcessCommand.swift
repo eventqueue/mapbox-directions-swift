@@ -24,6 +24,8 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
     @Key("-f", "--format", description: "Output format. Supports `text`, `json`, and `gpx` formats. Defaults to `text`.")
     var outputFormat: OutputFormat?
     
+    typealias RouteResponse = MapboxDirections.RouteResponse
+    
     enum OutputFormat: String, ConvertibleFromString {
         case text
         case json
@@ -43,7 +45,7 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
         return try encoder.encode(result)
     }
     
-    private func processOutput(_ data: Data) {
+    private func processOutput(_ data: Data, routeResponse: RouteResponse?) {
         var outputText: String = ""
         
         switch outputFormat {
@@ -55,21 +57,21 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
                 outputText = String(data: jsonData, encoding: .utf8)!
             }
         case .gpx:
-            // Data -> JSON -> GPX
-            outputText = "GPX FILE!"
             var gpxText: String = String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
             gpxText.append("\n<gpx")
+            // do we need to include additional tags like metadata or the schema version?
             
-            // CONVERT POINTS TO GPX
-            let json = try? JSONDecoder().decode(RouteOptions.self, from: data)
-            print("!!! JSON: \(String(describing: json))")
-            if let waypoints = json?.waypoints {
-                for waypoint in waypoints {
-                    print("!!! waypoint: \(waypoint)")
-                    break
+            guard let routeResponse = routeResponse else { return }
+            guard let routes = routeResponse.routes else { return }
+            routes.forEach { route in
+                let shape = route.shape
+                for coord in shape!.coordinates {
+                    gpxText.append("\n<wpt lat=\"\(coord.latitude)\" lon=\"\(coord.longitude)\">")
+                    gpxText.append("</wpt>")
                 }
-            } else { print("!!! NOT GOING INTO FOR LOOP")}
+            }
             gpxText.append("\n</gpx>")
+            outputText = gpxText
         }
         
         if let outputPath = outputPath {
@@ -114,6 +116,13 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
         
         decoder.userInfo = [.options: directionsOptions!,
                             .credentials: BogusCredentials]
+        
+        var routeResponse: RouteResponse!
+        if outputFormat == .gpx {
+            guard let gpxData = try String(contentsOfFile: inputPath).data(using: .utf8) else { exit(1)}
+            routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
+        }
+        
         var data: Data!
         do {
             data = try processResponse(decoder, type: ResponceType.self, from: input)
@@ -123,7 +132,7 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
             exit(1)
         }
         
-        processOutput(data)
+        processOutput(data, routeResponse: routeResponse)
     }
 }
 
