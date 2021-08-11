@@ -12,7 +12,7 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
     
     var name = "process"
     
-    @Key("-i", "--input", description: "Filepath to the input JSON.")
+    @Key("-i", "--input", description: "[Optional] Filepath to the input JSON. If no filepath provided - will fall back to Directions API request.")
     var inputPath: String?
     
     @Key("-c", "--config", description: "Filepath to the JSON, containing serialized Options data.")
