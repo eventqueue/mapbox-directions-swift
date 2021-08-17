@@ -3,8 +3,10 @@ import Foundation
 import MapboxDirections
 import SwiftCLI
 
-let accessToken = ProcessInfo.processInfo.environment["access_token"]
-let credentials = DirectionsCredentials(accessToken: accessToken)
+let accessToken: String? =
+    ProcessInfo.processInfo.environment["access_token"] ??
+    UserDefaults.standard.string(forKey: "MBXAccessToken")
+let credentials = DirectionsCredentials(accessToken: accessToken!)
 private let directions = Directions(credentials: credentials)
 
 class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > : Command {
@@ -123,8 +125,6 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
             }
             
             responseData = data
-            print("Fetched data: \(data)")
-            print("Fetched response: \(String(describing: response))")
             semaphore.signal()
         }
         
