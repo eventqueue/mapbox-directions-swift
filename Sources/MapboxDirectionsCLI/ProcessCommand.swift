@@ -3,10 +3,9 @@ import Foundation
 import MapboxDirections
 import SwiftCLI
 
-
-private let BogusCredentials = DirectionsCredentials(accessToken: "pk.feedCafeDadeDeadBeef-BadeBede.FadeCafeDadeDeed-BadeBede")
-private let NotBogusCredentials = DirectionsCredentials()
-private let directions = Directions(credentials: NotBogusCredentials)
+let accessToken = ProcessInfo.processInfo.environment["access_token"]
+let credentials = DirectionsCredentials(accessToken: accessToken)
+private let directions = Directions(credentials: credentials)
 
 class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > : Command {
     
@@ -16,9 +15,6 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
     
     @Key("-i", "--input", description: "[Optional] Filepath to the input JSON. If no filepath provided - will fall back to Directions API request using locations in config file.")
     var inputPath: String?
-    
-//    @Key("-l", "--locations", description: "[Optional] Location coordinates for Directions API reuqest if no filepath is provided. If no location coordinates provided - will fall back to a predefined route.")
-//    var locationCoordinates: String?
     
     @Key("-c", "--config", description: "Filepath to the JSON, containing serialized Options data.")
     var configPath: String?
@@ -173,17 +169,15 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
         }
         
         decoder.userInfo = [.options: directionsOptions!,
-                            .credentials: NotBogusCredentials]
+                            .credentials: credentials]
         
         var routeResponse: RouteResponse?
         if outputFormat == .gpx {
-            
             if let gpxData = input {
                 routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
+            } else if let gpxData = try String(contentsOfFile: inputPath!).data(using: .utf8) {
+                routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
             }
-//            if let gpxData = try String(contentsOfFile: inputPath!).data(using: .utf8) {
-//                routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
-//            }
         }
         
         var data: Data!
