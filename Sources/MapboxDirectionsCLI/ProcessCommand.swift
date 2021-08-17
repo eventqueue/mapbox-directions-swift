@@ -5,6 +5,8 @@ import SwiftCLI
 
 
 private let BogusCredentials = DirectionsCredentials(accessToken: "pk.feedCafeDadeDeadBeef-BadeBede.FadeCafeDadeDeed-BadeBede")
+private let NotBogusCredentials = DirectionsCredentials()
+private let directions = Directions(credentials: NotBogusCredentials)
 
 class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > : Command {
     
@@ -12,8 +14,11 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
     
     var name = "process"
     
-    @Key("-i", "--input", description: "[Optional] Filepath to the input JSON. If no filepath provided - will fall back to Directions API request.")
+    @Key("-i", "--input", description: "[Optional] Filepath to the input JSON. If no filepath provided - will fall back to Directions API request using locations in config file.")
     var inputPath: String?
+    
+//    @Key("-l", "--locations", description: "[Optional] Location coordinates for Directions API reuqest if no filepath is provided. If no location coordinates provided - will fall back to a predefined route.")
+//    var locationCoordinates: String?
     
     @Key("-c", "--config", description: "Filepath to the JSON, containing serialized Options data.")
     var configPath: String?
@@ -96,6 +101,46 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
         }
     }
     
+    private func requestResponse(_ coordinates: [Waypoint]?) -> (Data?, Data) {
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        var waypoints: [Waypoint]
+        if coordinates != nil {
+            waypoints = coordinates!
+        } else {
+            waypoints = [
+                Waypoint(coordinate: CLLocationCoordinate2D(latitude: 38.9131752, longitude: -77.0324047), name: "Mapbox"),
+                Waypoint(coordinate: CLLocationCoordinate2D(latitude: 38.8977, longitude: -77.0365), name: "White House"),
+            ]
+        }
+        
+        let options = RouteOptions(waypoints: waypoints, profileIdentifier: .automobileAvoidingTraffic)
+        options.includesSteps = true
+        var responseData: Data?
+        
+        let url = directions.url(forCalculating: options)
+        let urlSession = URLSession(configuration: .ephemeral)
+
+        let task = urlSession.dataTask(with: url) { (data, response, error) in
+            guard let data = data, error == nil else {
+                fatalError(error!.localizedDescription)
+            }
+            
+            responseData = data
+            print("Fetched data: \(data)")
+            print("Fetched response: \(String(describing: response))")
+            semaphore.signal()
+        }
+        
+        task.resume()
+        semaphore.wait()
+        
+        let encoder = JSONEncoder()
+        let encodedOptions = try! encoder.encode(options)
+        
+        return (responseData, encodedOptions)
+    }
+    
     init(name: String, shortDescription: String = "") {
         self.name = name
         self.customShortDescription = shortDescription
@@ -104,11 +149,10 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
     // MARK: - Command implementation
     
     func execute() throws {
-        guard let inputPath = inputPath else { exit(1) }
         guard let configPath = configPath else { exit(1) }
         
-        let input = FileManager.default.contents(atPath: NSString(string: inputPath).expandingTildeInPath)!
         let config = FileManager.default.contents(atPath: NSString(string: configPath).expandingTildeInPath)!
+        let input: Data!
         
         let decoder = JSONDecoder()
         
@@ -121,13 +165,25 @@ class ProcessCommand<ResponceType : Codable, OptionsType : DirectionsOptions > :
             exit(1)
         }
         
+        if let inputPath = inputPath {
+            input = FileManager.default.contents(atPath: NSString(string: inputPath).expandingTildeInPath)!
+        } else {
+            let response = requestResponse(directionsOptions.waypoints)
+            input = response.0
+        }
+        
         decoder.userInfo = [.options: directionsOptions!,
-                            .credentials: BogusCredentials]
+                            .credentials: NotBogusCredentials]
         
         var routeResponse: RouteResponse?
         if outputFormat == .gpx {
-            guard let gpxData = try String(contentsOfFile: inputPath).data(using: .utf8) else { exit(1) }
-            routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
+            
+            if let gpxData = input {
+                routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
+            }
+//            if let gpxData = try String(contentsOfFile: inputPath!).data(using: .utf8) {
+//                routeResponse = try! decoder.decode(RouteResponse.self, from: gpxData)
+//            }
         }
         
         var data: Data!
