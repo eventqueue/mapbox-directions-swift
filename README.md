@@ -208,7 +208,7 @@ The [Mapbox Navigation SDK for iOS](https://github.com/mapbox/mapbox-navigation-
 
 ## Directions CLI
 
-`MapboxDirectionsCLI` is a command line tool, designed to round-trip an arbitrary, JSON-formatted Directions or Map Matching API response through model objects and back to JSON. This is useful for various scenarios including testing purposes and designing more sophisticated API response processing pipelines. It is also supplied as a Swift package.
+`MapboxDirectionsCLI` is a command line tool, designed to round-trip a Directions or Map Matching API response through model objects and back to JSON, plain text, or GPX. This is useful for various scenarios including testing purposes and designing more sophisticated API response processing pipelines. It is also supplied as a Swift package.
 
 To build `MapboxDirectionsCLI` using Carthage pipeline:
 
@@ -220,6 +220,8 @@ To build `MapboxDirectionsCLI` using SPM:
 
 1. `swift build`
 1. `swift run MapboxDirectionsCLI -h` to see usage.
+
+For further details, see the [MapboxDirectionsCLI documentation](ADD LINK).
 
 ## Pricing
 
