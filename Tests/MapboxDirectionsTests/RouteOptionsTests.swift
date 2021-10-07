@@ -29,6 +29,7 @@ class RouteOptionsTests: XCTestCase {
         XCTAssertEqual(unarchivedOptions.distanceMeasurementSystem, options.distanceMeasurementSystem)
         XCTAssertEqual(unarchivedOptions.includesVisualInstructions, options.includesVisualInstructions)
         XCTAssertEqual(unarchivedOptions.roadClassesToAvoid, options.roadClassesToAvoid)
+        XCTAssertEqual(unarchivedOptions.avoidManeuversInOriginRadius, options.avoidManeuversInOriginRadius)
     }
     
     func testCodingWithRawCodingKeys() {
@@ -52,7 +53,8 @@ class RouteOptionsTests: XCTestCase {
             "alternatives": false,
             "roundabout_exits": true,
             "exclude": ["toll"],
-            "enable_refresh": false
+            "enable_refresh": false,
+            "avoid_maneuver_radius": 300
         ]
         
         let routeOptionsData = try! JSONSerialization.data(withJSONObject: routeOptionsJSON, options: [])
@@ -73,6 +75,7 @@ class RouteOptionsTests: XCTestCase {
         XCTAssertEqual(routeOptions.includesExitRoundaboutManeuver, true)
         XCTAssertEqual(routeOptions.roadClassesToAvoid, .toll)
         XCTAssertEqual(routeOptions.refreshingEnabled, false)
+        XCTAssertEqual(routeOptions.avoidManeuversInOriginRadius, 300)
         
         let encodedRouteOptions: Data = try! JSONEncoder().encode(routeOptions)
         let optionsString: String = String(data: encodedRouteOptions, encoding: .utf8)!
@@ -94,6 +97,7 @@ class RouteOptionsTests: XCTestCase {
         XCTAssertEqual(unarchivedOptions.includesExitRoundaboutManeuver, routeOptions.includesExitRoundaboutManeuver)
         XCTAssertEqual(unarchivedOptions.roadClassesToAvoid, routeOptions.roadClassesToAvoid)
         XCTAssertEqual(unarchivedOptions.refreshingEnabled, routeOptions.refreshingEnabled)
+        XCTAssertEqual(unarchivedOptions.avoidManeuversInOriginRadius, routeOptions.avoidManeuversInOriginRadius)
     }
     
     // MARK: API name-handling tests
@@ -204,6 +208,18 @@ class RouteOptionsTests: XCTestCase {
         XCTAssertTrue(options.urlQueryItems.contains(URLQueryItem(name: "waypoint_names", value: "XU;UC")))
         XCTAssertTrue(options.urlQueryItems.contains(URLQueryItem(name: "waypoint_targets", value: ";-84.51619,39.13115")))
     }
+    
+    func testAvoidManeuversInOriginRadiusSerialization() {
+        let options = RouteOptions(locations: [])
+        
+        options.avoidManeuversInOriginRadius = 123.456
+        
+        XCTAssertTrue(options.urlQueryItems.contains(URLQueryItem(name: "avoid_maneuver_radius", value: "123.456")))
+        
+        options.avoidManeuversInOriginRadius = nil
+        
+        XCTAssertFalse(options.urlQueryItems.contains(URLQueryItem(name: "avoid_maneuver_radius", value: nil)))
+    }
 }
 
 fileprivate let testCoordinates = [
@@ -224,6 +240,7 @@ var testRouteOptions: RouteOptions {
     opts.distanceMeasurementSystem = .metric
     opts.includesVisualInstructions = true
     opts.roadClassesToAvoid = .toll
+    opts.avoidManeuversInOriginRadius = 100
 
     return opts
 }
