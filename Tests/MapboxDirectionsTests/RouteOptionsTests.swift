@@ -210,7 +210,7 @@ class RouteOptionsTests: XCTestCase {
     }
     
     func testAvoidManeuversInOriginRadiusSerialization() {
-        let options = RouteOptions(locations: [])
+        let options = RouteOptions(coordinates: [])
         
         options.avoidManeuversInOriginRadius = 123.456
         
