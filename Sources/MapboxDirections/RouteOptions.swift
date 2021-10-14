@@ -9,7 +9,7 @@ import Turf
 
  Pass an instance of this class into the `Directions.calculate(_:completionHandler:)` method.
  */
-open class RouteOptions: DirectionsOptions {
+open class RouteOptions: DirectionsOptions, NSCopying {
     // MARK: Creating a Route Options Object
 
     /**
@@ -220,6 +220,29 @@ open class RouteOptions: DirectionsOptions {
         }
 
         return params + super.urlQueryItems
+    }
+    
+    open func copy(with zone: NSZone? = nil) -> Any {
+        do {
+            let encodedOptions = try JSONEncoder().encode(self)
+            return try JSONDecoder().decode(type(of: self), from: encodedOptions)
+        } catch {
+            preconditionFailure("Unable to copy \(type(of: self)) by round-tripping it through JSON: \(error)")
+        }
+    }
+    
+    /**
+     Returns a copy of RouteOptions without the specified waypoint.
+     
+     - parameter waypoint: the Waypoint to exclude.
+     - returns: a copy of self excluding the specified waypoint.
+     */
+    public func without(_ waypoint: Waypoint) -> RouteOptions {
+        let waypointsWithoutSpecified = waypoints.filter { $0 != waypoint }
+        let copy = self.copy() as! RouteOptions
+        copy.waypoints = waypointsWithoutSpecified
+        
+        return copy
     }
 }
 
